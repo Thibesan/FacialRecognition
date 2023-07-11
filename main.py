@@ -31,7 +31,7 @@ class FaceRecognition:
         for image in os.listdir('faces'):
             #Load Image, encode it, and add to list of known faces w/ title
             faceImage = face_recognition.load_image_file(f"faces/{image}")
-            #Will throw error if image is not a face
+            #Will throw error if image encoding fails to recognize face
             faceEncoding = face_recognition.face_encodings(faceImage)[0]
             
             self.knownFaceEncodings.append(faceEncoding)
