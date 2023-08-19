@@ -39,6 +39,39 @@ class FaceRecognition:
         
         print(self.knownFaceNames)
 
+        def runRecognition(self):
+            videoCapture = cv2.VideoCapture(0)
+
+            if not videoCapture.isOpened():
+                sys.exit("Video source not found")
+
+            while True:
+                ret, frame = videoCapture.read()
+
+                if self.processCurrentFrame:
+                    smallFrame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+                    rgbSmallFrame = cv2.cvtColor(smallFrame, cv2.COLOR_BGR2RGB) #Change Color params for 1:4 scale resized frame
+
+                    self.faceLocations = face_recognition.faceLocations(rgbSmallFrame)
+                    self.faceEncodings = face_recognition.faceEncodings(rgbSmallFrame, self.faceLocations)
+
+                    self.faceNames = []
+                    for faceEncoding in self.faceEncodings:
+                        matches = face_recognition.compare_faces(self.knownFaceEncodings, faceEncoding)
+                        name = 'Unknown'
+                        confidence = 'Unknown'
+
+                        faceDistances = face_recognition.face_distance(self.knownFaceEncodings, faceEncoding)
+                        bestMatchIndex = np.argmin(faceDistances)
+
+                        if matches[bestMatchIndex]:
+                            name = self.knownFaceNames[bestMatchIndex]
+                            confidence = faceConfidence(faceDistances[bestMatchIndex])
+
+                        self.faceNames.append(f'{name} ({confidence})')
+
+                self.processCurrentFrame = not self.processCurrentFrame
+
 if __name__ == '__main__':
     fr = FaceRecognition()
 
